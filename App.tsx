@@ -1,17 +1,16 @@
-import { FlatList } from 'react-native';
 import React, { useState, useCallback } from 'react';
 
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Card from './src/components/card';
-import type { AppRoutes } from './src/types';
+import Animated, { useAnimatedScrollHandler } from 'react-native-reanimated';
 
 const Stack = createNativeStackNavigator();
 
 function HomeScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<AppRoutes>>();
   const [openId, setOpenId] = useState('');
+  const scrollHandler = useAnimatedScrollHandler({}, []);
 
   const toggleOpenedId = useCallback((id: string) => {
     setOpenId(oldState => {
@@ -24,23 +23,22 @@ function HomeScreen() {
   }, [])
 
   return (
-    <FlatList
-      data={[0, 1, 2, 3, 4, 5, 6, 7]}
-      style={{ flex: 1 }}
-      renderItem={({ item, index }) => {
+    <Animated.ScrollView scrollEventThrottle={16} onScroll={scrollHandler}>
+      {[0, 1, 2, 3, 4, 5, 6, 7].map((item, index) => {
         const id = item.toString();
         const isOpen = openId === item.toString();
 
         return (
           <Card
+            key={id}
             id={id}
             index={index}
             isOpen={isOpen}
             toggleOpen={toggleOpenedId}
           />
         )
-      }}
-    />
+      })}
+    </Animated.ScrollView>
   );
 }
 
@@ -49,7 +47,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName="Home"
-          screenOptions={{ animation: 'fade', headerShown: false }}
+          screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="Home" component={HomeScreen} />
         </Stack.Navigator>
